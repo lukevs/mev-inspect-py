@@ -1,9 +1,12 @@
 from web3 import Web3
-import configparser
 import json
 import utils
 
+import pprint
+pp = pprint.PrettyPrinter(indent=4)
+
 ## Config file is used for addresses/ABIs
+import configparser
 config = configparser.ConfigParser()
 config.read('./utils/config.ini')
 
@@ -13,6 +16,10 @@ uniswap_router_address = (config['ADDRESSES']['UniswapV2Router'])
 sushiswap_router_address = (config['ADDRESSES']['SushiswapV2Router'])
 
 uniswap_pair_abi = json.loads(config['ABI']['UniswapV2Pair'])
+
+erc20_abi = json.loads(config['ABI']['ERC20'])
+weth_abi = json.loads(config['ABI']['WETH'])
+weth_address = config['ADDRESSES']['WethAddress']
 
 class UniswapInspector:
     def __init__(self, base_provider) -> None:
@@ -27,6 +34,11 @@ class UniswapInspector:
         # Alternative returned as a string, not hexbytes: (self.uniswap_v2_pair_contract.functions.swap(0, 0, uniswap_router_address, "").selector) ## Note the address here doesn't matter, but it must be filled out
         self.uniswap_v2_pair_reserves_signature = Web3.sha3(text='getReserves()')[0:4]
          # Alternative returned as a string, not hexbytes: self.uniswap_v2_pair_contract.functions.getReserves().selector ## Called "checksigs" in mev-inpsect.ts
+
+        self.erc20_contract = self.w3.eth.contract(abi=erc20_abi)
+        self.erc20_transfer_signatures = [Web3.sha3(text='transfer(address,uint256)')[0:4], Web3.sha3(text='transferFrom(address,address,uint256)')[0:4]]
+
+        self.weth_contract = self.w3.eth.contract(abi=weth_abi)
 
         print("Built Uniswap inspector")
     
@@ -79,6 +91,7 @@ class UniswapInspector:
 
         ## Identifies trades that go directly to the Uniswap router
         for trade_call in self.get_router_trade_calls(calls):
+            print("Found a direct to router trade!")
             sub_calls_of_trade = []
             for call in calls:
                 if call['transactionHash'] == trade_call['transactionHash'] and utils.sub_call_match(call, trade_call['traceAddress']):
@@ -97,6 +110,7 @@ class UniswapInspector:
             path = args['path']
             source_token = path[0].lower()
             dest_token = path[len(path) - 1].lower()
+            ## TODO: figure out what we want to do with this
 
             ## This can probably be turned into a terniary but I can't remember how to do that and I'm on a plane
             provider = ''
@@ -108,8 +122,8 @@ class UniswapInspector:
             ## Create a structured object for the results
             action = {
                 'provider': provider,
-                'action_type': 'tbd',  #     type: ACTION_TYPE.TRADE,
-                'action_calls': sub_calls_of_trade,
+                'action_type': 'Uniswap v2 router trade',  #     type: ACTION_TYPE.TRADE,
+                'action_calls': sub_calls_of_trade, # Sub calls of trade_call
                 'transaction_hash': trade_call['transactionHash'],
                 'subcall': trade_call,
                 'status': 'tbd'  #     status: tradeCall.reverted ? ACTION_STATUS.REVERTED : ACTION_STATUS.SUCCESS,
@@ -126,16 +140,17 @@ class UniswapInspector:
 
         ## Identified trades that go directly to pairs
         for pair_trade_call in self.get_pair_trade_calls(calls):
+            print("Found a pair trade!")
             sub_calls_of_pair_trade = []
 
             for call in calls:
                 if call['transactionHash'] == pair_trade_call['transactionHash'] and utils.sub_call_match(call, pair_trade_call['traceAddress']):
                     ## The intention here is to get the sub calls that correspond to a trade.
                     sub_calls_of_pair_trade.append(call)
-
+            
             action = {
                 'provider': uniswap_router_address, # TBD
-                'action_type': 'tbd',  #     type: ACTION_TYPE.TRADE, also TBD
+                'action_type': 'Uniswap v2 direct pair trade',  #     type: ACTION_TYPE.TRADE, also TBD
                 'action_calls': sub_calls_of_pair_trade,
                 'transaction_hash': pair_trade_call['transactionHash'],
                 'subcall': pair_trade_call,
@@ -153,6 +168,7 @@ class UniswapInspector:
         
         ## Identifies "pre-flights" that check reserves before trading
         for check_reserves_call in self.get_pair_reserves_calls(calls):
+            print("Found a reserve check!")
             sub_calls_of_check_reserves_call = []
 
             for call in calls:
@@ -162,7 +178,7 @@ class UniswapInspector:
 
             action = {
                 'provider': uniswap_router_address, # TBD
-                'action_type': 'tbd',  #     type: ACTION_TYPE.TRADE, also TBD
+                'action_type': 'check_reserves',  #     type: ACTION_TYPE.TRADE, also TBD
                 'action_calls': sub_calls_of_check_reserves_call,
                 'transaction_hash': check_reserves_call['transactionHash'],
                 'subcall': check_reserves_call,

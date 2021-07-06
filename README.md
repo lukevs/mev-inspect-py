@@ -12,6 +12,7 @@ In its current, unfinished, form MEV-Inspect-PY consists of:
 - utils.py: a series of utility functions used across different parts of mev-inspect
 - testing_file.py: a file I made to put all of this together and test it.
 
+# Using MEV-Inspect-PY
 ```
 Usage: python3 testing_file.py [OPTIONS]
 

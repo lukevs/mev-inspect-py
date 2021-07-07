@@ -17,8 +17,8 @@ In its current, unfinished, form MEV-Inspect-PY consists of:
 Usage: python3 testing_file.py [OPTIONS]
 
 Optional arguments:
-  -block_number          the block number you are inspecting
-  -r                     the rpc endpoint of an erigon of parity archive node
+  -b, --block              the block number you are inspecting
+  -r, --rpc                the rpc endpoint of an erigon of parity archive node
 ```
 
 For a test block please try block number `12768559`. Transaction [0xcc118d2795c9196c9398b47a2f443dd0d54b1d265b4b4e400d956bc1a7f467a9](https://etherscan.io/tx/0xcc118d2795c9196c9398b47a2f443dd0d54b1d265b4b4e400d956bc1a7f467a9) is an arbitrage transaction.

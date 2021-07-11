@@ -2,7 +2,7 @@ from web3 import Web3
 from pathlib import Path
 import json
 
-cache_directoty = './cache'
+cache_directory = './cache'
 
 class BlockData:
     def __init__(self, block_number, data, receipts, calls, logs) -> None:
@@ -12,7 +12,6 @@ class BlockData:
         self.calls = calls
         self.logs = logs
         self.transaction_hashes = self.get_transaction_hashes()
-        pass
     
     ## Gets a list of unique transasction hashes in the calls of this block
     def get_transaction_hashes(self):
@@ -34,7 +33,7 @@ class BlockData:
     ## Writes this object to a JSON file for loading later
     def writeJSON(self):
         json_data = self.toJSON()
-        cache_file = '{cacheDirectory}/{blockNumber}.json'.format(cacheDirectory=cache_directoty, blockNumber=self.block_number)
+        cache_file = '{cacheDirectory}/{blockNumber}.json'.format(cacheDirectory=cache_directory, blockNumber=self.block_number)
         file_exists = Path(cache_file).is_file()
         if file_exists:
             f = open(cache_file, "w")
@@ -60,7 +59,7 @@ class BlockData:
 ## Note that you need to pass in the provider, not the web3 wrapped provider object!
 ## This is because only the provider allows you to make json rpc requests
 def createFromBlockNumber(block_number, base_provider):
-    cache_file = '{cacheDirectory}/{blockNumber}.json'.format(cacheDirectory=cache_directoty, blockNumber=block_number)
+    cache_file = '{cacheDirectory}/{blockNumber}.json'.format(cacheDirectory=cache_directory, blockNumber=block_number)
     
     ## Check to see if the data already exists in the cache
     ## if it exists load the data from cache

@@ -84,6 +84,7 @@ def createFromBlockNumber(block_number: int, base_provider) -> Block:
 
         return block
 
+
 def _get_cache_path(block_number: int) -> Path:
-    cache_filepath = f"{cache_directory}/{block_number}.json"
-    return Path(cache_filepath)
+    cache_directory_path = Path(cache_directory)
+    return cache_directory_path / f"{block_number}.json"

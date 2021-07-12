@@ -30,14 +30,14 @@ def createFromBlockNumber(block_number: int, base_provider) -> Block:
         )
 
         w3 = Web3(base_provider)
-        block = fetch_block(w3, block_number)
+        block = fetch_block(w3, base_provider, block_number)
 
         cache_block(cache_path, block)
 
         return block
 
 
-def fetch_block(w3, block_number: int) -> Block:
+def fetch_block(w3, base_provider, block_number: int) -> Block:
     ## Get block data
     block_data = w3.eth.get_block(block_number, True)
 

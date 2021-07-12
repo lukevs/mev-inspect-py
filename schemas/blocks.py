@@ -1,6 +1,9 @@
+import json
 from typing import List, Optional
 
+from hexbytes import HexBytes
 from pydantic import BaseModel
+from web3.datastructures import AttributeDict
 
 
 class Block(BaseModel):
@@ -10,6 +13,12 @@ class Block(BaseModel):
     logs: List[dict]
     receipts: dict
     transaction_hashes: List[str]
+
+    class Config:
+        json_encoders = {
+            AttributeDict: dict,
+            HexBytes: lambda h: h.hex(),
+        }
 
     def get_filtered_calls(self, hash: str) -> List[dict]:
         return [

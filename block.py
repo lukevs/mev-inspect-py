@@ -4,21 +4,19 @@ from typing import List
 
 from web3 import Web3
 
-from schemas import Block
+from schemas import Block, BlockCall, BlockCallType
 
 
 cache_directory = './cache'
 
 
-def get_transaction_hashes(calls: List[dict]) -> List[str]:
+def get_transaction_hashes(calls: List[BlockCall]) -> List[str]:
     result = []
 
     for call in calls:
-        if call['type'] != 'reward':
-            if call['transactionHash'] in result:
-                continue
-            else:
-                result.append(call['transactionHash'])
+        if call.type != BlockCallType.reward:
+            if call.transaction_hash not in result:
+                result.append(call.transaction_hash)
     
     return result
 
@@ -61,7 +59,11 @@ def createFromBlockNumber(block_number: int, base_provider) -> Block:
         block_receipts_raw = base_provider.make_request("eth_getBlockReceipts", [block_number])
 
         ## Trace the whole block, return those calls
-        block_calls = w3.parity.trace_block(block_number)
+        block_calls_json = w3.parity.trace_block(block_number)
+        block_calls = [
+            BlockCall(**call_json)
+            for call_json in block_calls_json
+        ]
         
         ## Get the logs
         block_hash = (block_data.hash).hex()

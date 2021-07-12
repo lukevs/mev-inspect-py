@@ -11,6 +11,8 @@ def to_camel(string: str) -> str:
 
 
 class CamelModel(BaseModel):
+    """BaseModel that translates from camelCase to snake_case"""
+
     class Config:
         alias_generator = to_camel
         allow_population_by_field_name = True
@@ -18,5 +20,3 @@ class CamelModel(BaseModel):
 
 def to_original_json_dict(model: BaseModel) -> dict:
     return json.loads(model.json(by_alias=True, exclude_unset=True))
-
-

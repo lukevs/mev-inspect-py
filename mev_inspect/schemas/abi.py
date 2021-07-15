@@ -26,7 +26,7 @@ NON_FUNCTION_DESCRIPTION_TYPES = Union[
 
 
 class ABIDescriptionInput(CamelModel):
-    internal_type: str
+    type: str
 
 
 class ABIGenericDescription(BaseModel):
@@ -43,8 +43,7 @@ class ABIFunctionDescription(BaseModel):
         return Web3.sha3(text=signature)[0:4]
 
     def get_signature(self) -> str:
-        joined_input_types = ",".join(input.internal_type for input in self.inputs)
-
+        joined_input_types = ",".join(input.type for input in self.inputs)
         return f"{self.name}({joined_input_types})"
 
 

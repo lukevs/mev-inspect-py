@@ -3,7 +3,7 @@ import argparse
 from web3 import Web3
 
 from mev_inspect import block
-from mev_inspect.inspector_uniswap import UniswapInspector
+from mev_inspect.inspectors.uniswap import UniswapInspector
 from mev_inspect.processor import Processor
 
 parser = argparse.ArgumentParser(description="Inspect some blocks.")

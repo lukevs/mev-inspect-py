@@ -5,6 +5,8 @@ from web3 import Web3
 from mev_inspect import utils
 from mev_inspect.config import load_config
 
+from .base import Inspector
+
 config = load_config()
 
 uniswap_router_abi = json.loads(config["ABI"]["UniswapV2Router"])
@@ -14,7 +16,7 @@ sushiswap_router_address = config["ADDRESSES"]["SushiswapV2Router"]
 uniswap_pair_abi = json.loads(config["ABI"]["UniswapV2Pair"])
 
 
-class UniswapInspector:
+class UniswapInspector(Inspector):
     def __init__(self, base_provider) -> None:
         self.w3 = Web3(base_provider)
 

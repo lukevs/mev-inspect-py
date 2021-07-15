@@ -1,10 +1,13 @@
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
+from typing_extensions import Literal
+
+from hexbytes import HexBytes
 
 from .utils import CamelModel, Web3Model
 
 
-class BlockCallType(Enum):
+class BlockCallType(str, Enum):
     call = "call"
     create = "create"
     create2 = "create2"
@@ -13,7 +16,21 @@ class BlockCallType(Enum):
     suicide = "suicide"
 
 
-class BlockCall(CamelModel):
+NON_CALL_TYPES = Union[
+    Literal[BlockCallType.create],
+    Literal[BlockCallType.create2],
+    Literal[BlockCallType.delegate_call],
+    Literal[BlockCallType.reward],
+    Literal[BlockCallType.suicide],
+]
+
+
+class CallAction(CamelModel):
+    to: str
+    input: HexBytes
+
+
+class GenericBlockCall(CamelModel):
     action: dict
     block_hash: str
     block_number: int
@@ -22,8 +39,24 @@ class BlockCall(CamelModel):
     trace_address: List[int]
     transaction_hash: Optional[str]
     transaction_position: Optional[int]
-    type: BlockCallType
+    type: NON_CALL_TYPES
     error: Optional[str]
+
+
+class CallBlockCall(CamelModel):
+    action: CallAction
+    block_hash: str
+    block_number: int
+    result: Optional[dict]
+    subtraces: int
+    trace_address: List[int]
+    transaction_hash: Optional[str]
+    transaction_position: Optional[int]
+    type: Literal[BlockCallType.call]
+    error: Optional[str]
+
+
+BlockCall = Union[CallBlockCall, GenericBlockCall]
 
 
 class Block(Web3Model):

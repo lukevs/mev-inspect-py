@@ -7,6 +7,7 @@ from .utils import CamelModel, Web3Model
 class BlockCallType(Enum):
     call = "call"
     create = "create"
+    create2 = "create2"
     delegate_call = "delegateCall"
     reward = "reward"
     suicide = "suicide"

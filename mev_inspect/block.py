@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import List
 
+from pydantic import parse_obj_as
 from web3 import Web3
 
 from mev_inspect.schemas import Block, BlockCall, BlockCallType
@@ -43,7 +44,7 @@ def fetch_block(w3, base_provider, block_number: int) -> Block:
 
     ## Trace the whole block, return those calls
     block_calls_json = w3.parity.trace_block(block_number)
-    block_calls = [BlockCall(**call_json) for call_json in block_calls_json]
+    block_calls = [parse_obj_as(BlockCall, call_json) for call_json in block_calls_json]  # type: ignore
 
     ## Get the logs
     block_hash = (block_data.hash).hex()

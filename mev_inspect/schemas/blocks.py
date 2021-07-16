@@ -29,6 +29,9 @@ class CallAction(CamelModel):
     to: str
     input: HexBytes
 
+    def get_function_selector(self) -> str:
+        return self.input[:10].decode()
+
 
 class GenericBlockCall(CamelModel):
     action: dict

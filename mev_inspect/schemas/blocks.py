@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from .utils import CamelModel, Web3Model
 
 
-class BlockTraceType(Enum):
+class TraceType(Enum):
     call = "call"
     create = "create"
     delegate_call = "delegateCall"
@@ -14,7 +14,7 @@ class BlockTraceType(Enum):
     suicide = "suicide"
 
 
-class BlockTrace(CamelModel):
+class Trace(CamelModel):
     action: dict
     block_hash: str
     block_number: int
@@ -23,25 +23,25 @@ class BlockTrace(CamelModel):
     trace_address: List[int]
     transaction_hash: Optional[str]
     transaction_position: Optional[int]
-    type: BlockTraceType
+    type: TraceType
     error: Optional[str]
 
 
 class Block(Web3Model):
     block_number: int
-    calls: List[BlockTrace]
+    calls: List[Trace]
     data: dict
     logs: List[dict]
     receipts: dict
     transaction_hashes: List[str]
     txs_gas_data: Dict[str, dict]
 
-    def get_filtered_calls(self, hash: str) -> List[BlockTrace]:
+    def get_filtered_calls(self, hash: str) -> List[Trace]:
         return [call for call in self.calls if call.transaction_hash == hash]
 
 
 class NestedTrace(BaseModel):
-    trace: BlockTrace
+    trace: Trace
     subtraces: List["NestedTrace"]
 
 

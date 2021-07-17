@@ -1,1 +1,1 @@
-from .blocks import Block, BlockTrace, BlockTraceType, NestedTrace
+from .blocks import Block, Trace, TraceType, NestedTrace

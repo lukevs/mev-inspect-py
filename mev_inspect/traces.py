@@ -1,11 +1,11 @@
 from typing import List
 
-from mev_inspect.schemas import BlockTrace, NestedTrace
+from mev_inspect.schemas import Trace, NestedTrace
 
 
-def as_nested_traces(traces: List[BlockTrace]) -> List[NestedTrace]:
+def as_nested_traces(traces: List[Trace]) -> List[NestedTrace]:
     """
-    Turns a list of BlockTraces into a a tree of NestedTraces
+    Turns a list of Traces into a a tree of NestedTraces
     using their trace addresses
 
     Right now this has an exponential runtime because we rescan
@@ -17,7 +17,7 @@ def as_nested_traces(traces: List[BlockTrace]) -> List[NestedTrace]:
     nested_traces = []
 
     parent = None
-    children: List[BlockTrace] = []
+    children: List[Trace] = []
 
     for trace in traces:
         if parent is None:
@@ -50,7 +50,7 @@ def as_nested_traces(traces: List[BlockTrace]) -> List[NestedTrace]:
     return nested_traces
 
 
-def _is_subtrace(maybe_subtrace: BlockTrace, parent: BlockTrace):
+def _is_subtrace(maybe_subtrace: Trace, parent: Trace):
     if len(maybe_subtrace.trace_address) <= len(parent.trace_address):
         return False
 

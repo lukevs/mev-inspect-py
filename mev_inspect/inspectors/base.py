@@ -1,8 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import Optional
+
+from mev_inspect.schemas import Action, NestedTrace
 
 
 class Inspector(ABC):
     @abstractmethod
-    def inspect(self, calls: List[dict]):
+    def inspect(self, trace: NestedTrace) -> Optional[Action]:
         pass

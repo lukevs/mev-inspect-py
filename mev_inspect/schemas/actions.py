@@ -9,5 +9,5 @@ class Action(BaseModel):
     trace: Trace
 
 
-class UnknownAction(BaseModel):
+class UnknownAction(Action):
     internal_actions: List[Action]

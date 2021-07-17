@@ -1,9 +1,9 @@
-from typing import List
+from typing import Iterable, List
 
 from mev_inspect.schemas import Trace, NestedTrace
 
 
-def as_nested_traces(traces: List[Trace]) -> List[NestedTrace]:
+def as_nested_traces(traces: Iterable[Trace]) -> List[NestedTrace]:
     """
     Turns a list of Traces into a a tree of NestedTraces
     using their trace addresses

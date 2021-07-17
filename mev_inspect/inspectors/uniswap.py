@@ -5,7 +5,7 @@ from web3 import Web3
 
 from mev_inspect import utils
 from mev_inspect.config import load_config
-from mev_inspect.schemas import Action, NestedTrace
+from mev_inspect.schemas import Action, NestedTrace, TraceType
 
 from .base import Inspector
 
@@ -87,10 +87,14 @@ class UniswapInspector(Inspector):
         trace = nested_trace.trace
 
         if (
-            trace.action["to"] == uniswap_router_address.lower()
-            or trace.action["to"] == sushiswap_router_address.lower()
-        ) and utils.check_call_for_signature(
-            trace, self.uniswap_router_trade_signatures
+            trace.type == TraceType.call
+            and (
+                trace.action["to"] == uniswap_router_address.lower()
+                or trace.action["to"] == sushiswap_router_address.lower()
+            )
+            and utils.check_call_for_signature(
+                trace, self.uniswap_router_trade_signatures
+            )
         ):
             # print("WIP, here is where there is a call that matches what we are looking for")
             pass

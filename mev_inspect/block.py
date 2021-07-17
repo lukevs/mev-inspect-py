@@ -3,7 +3,7 @@ from typing import List
 
 from web3 import Web3
 
-from mev_inspect.schemas import Block, BlockCall, BlockCallType
+from mev_inspect.schemas import Block, BlockTrace, BlockTraceType
 
 
 cache_directory = "./cache"
@@ -43,7 +43,7 @@ def fetch_block(w3, base_provider, block_number: int) -> Block:
 
     ## Trace the whole block, return those calls
     block_calls_json = w3.parity.trace_block(block_number)
-    block_calls = [BlockCall(**call_json) for call_json in block_calls_json]
+    block_calls = [BlockTrace(**call_json) for call_json in block_calls_json]
 
     ## Get the logs
     block_hash = (block_data.hash).hex()
@@ -78,11 +78,11 @@ def fetch_block(w3, base_provider, block_number: int) -> Block:
     )
 
 
-def get_transaction_hashes(calls: List[BlockCall]) -> List[str]:
+def get_transaction_hashes(calls: List[BlockTrace]) -> List[str]:
     result = []
 
     for call in calls:
-        if call.type != BlockCallType.reward:
+        if call.type != BlockTraceType.reward:
             if (
                 call.transaction_hash is not None
                 and call.transaction_hash not in result

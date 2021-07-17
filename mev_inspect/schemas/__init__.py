@@ -1,1 +1,1 @@
-from .blocks import Block, BlockCall, BlockCallType
+from .blocks import Block, BlockTrace, BlockTraceType

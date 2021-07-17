@@ -7,6 +7,11 @@ def as_nested_traces(traces: List[BlockTrace]) -> List[NestedTrace]:
     """
     Turns a list of BlockTraces into a a tree of NestedTraces
     using their trace addresses
+
+    Right now this has an exponential runtime because we rescan
+    most traces at each level of tree depth
+
+    TODO to write a better implementation
     """
 
     nested_traces = []

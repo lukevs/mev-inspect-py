@@ -1,6 +1,8 @@
 from enum import Enum
 from typing import Dict, List, Optional
 
+from pydantic import BaseModel
+
 from .utils import CamelModel, Web3Model
 
 
@@ -36,3 +38,11 @@ class Block(Web3Model):
 
     def get_filtered_calls(self, hash: str) -> List[BlockTrace]:
         return [call for call in self.calls if call.transaction_hash == hash]
+
+
+class NestedTrace(BaseModel):
+    trace: BlockTrace
+    subtraces: List["NestedTrace"]
+
+
+NestedTrace.update_forward_refs()

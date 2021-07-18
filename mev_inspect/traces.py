@@ -50,12 +50,10 @@ def as_nested_traces(traces: Iterable[Trace]) -> List[NestedTrace]:
     return nested_traces
 
 
-def _is_subtrace(maybe_subtrace: Trace, parent: Trace):
-    if len(maybe_subtrace.trace_address) <= len(parent.trace_address):
-        return False
+def _is_subtrace(trace: Trace, parent: Trace):
+    parent_trace_length = len(parent.trace_address)
+    if len(trace.trace_address) > parent_trace_length:
+        prefix = trace.trace_address[:parent_trace_length]
+        return prefix == parent.trace_address
 
-    for index, value in enumerate(parent.trace_address):
-        if maybe_subtrace.trace_address[index] != value:
-            return False
-
-    return True
+    return False

@@ -3,6 +3,7 @@ import argparse
 from web3 import Web3
 
 from mev_inspect import block
+from mev_inspect.inspectors.synthetix import SynthetixInspector
 from mev_inspect.inspectors.uniswap import UniswapInspector
 from mev_inspect.processor import Processor
 
@@ -27,9 +28,10 @@ block_data = block.createFromBlockNumber(args.block_number[0], base_provider)
 
 ## Build a Uniswap inspector
 uniswap_inspector = UniswapInspector(base_provider)
+synthetix_inspector = SynthetixInspector(Web3(base_provider))
 
 ## Create a processor, pass in an ARRAY of inspects
-processor = Processor([uniswap_inspector, uniswap_inspector])
+processor = Processor([uniswap_inspector, synthetix_inspector])
 
 actions = processor.get_transaction_evaluations(block_data)
 

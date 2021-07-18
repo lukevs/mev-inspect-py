@@ -11,3 +11,7 @@ class Action(BaseModel):
 
 class UnknownAction(Action):
     internal_actions: List[Action]
+
+
+class SynthetixBurn(Action):
+    amount: int

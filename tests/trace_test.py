@@ -11,15 +11,15 @@ DEFAULT_BLOCK_NUMBER = 123
 class TestTraces(unittest.TestCase):
     def test_nested_traces(self):
         trace_addresses = [
+            [0, 2],
             [],
+            [2],
             [0],
             [0, 0],
             [0, 1],
-            [0, 1, 0],
-            [0, 2],
             [1],
             [1, 0],
-            [2],
+            [0, 1, 0],
         ]
 
         traces = [build_trace_at_address(address) for address in trace_addresses]

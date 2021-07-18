@@ -19,7 +19,9 @@ def as_nested_traces(traces: Iterable[Trace]) -> List[NestedTrace]:
     parent = None
     children: List[Trace] = []
 
-    for trace in traces:
+    sorted_traces = sorted(traces, key=lambda t: t.trace_address)
+
+    for trace in sorted_traces:
         if parent is None:
             parent = trace
             children = []
@@ -52,6 +54,7 @@ def as_nested_traces(traces: Iterable[Trace]) -> List[NestedTrace]:
 
 def _is_subtrace(trace: Trace, parent: Trace):
     parent_trace_length = len(parent.trace_address)
+
     if len(trace.trace_address) > parent_trace_length:
         prefix = trace.trace_address[:parent_trace_length]
         return prefix == parent.trace_address

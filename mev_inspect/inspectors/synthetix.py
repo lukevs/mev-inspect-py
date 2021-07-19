@@ -1,5 +1,5 @@
 import json
-from typing import Optional
+from typing import Optional, Tuple
 
 from mev_inspect.config import load_config
 from mev_inspect.schemas import NestedTrace, Trace, TraceType
@@ -24,9 +24,12 @@ class SynthetixInspector(Inspector):
         trace = nested_trace.trace
 
         if self._is_token_call(trace):
-            (func, inputs) = self.token_contract.decode_function_input(
-                data=trace.action["input"],
-            )
+            decoded = self._try_token_decode(trace.action["input"])
+
+            if decoded is None:
+                return None
+
+            (func, inputs) = decoded
 
             if func.fn_name == BURN_SYNTHS_FUNCTION:
                 return SynthetixBurn(
@@ -36,8 +39,15 @@ class SynthetixInspector(Inspector):
 
         return None
 
-    def _is_token_call(self, trace: Trace) -> bool:
+    @staticmethod
+    def _is_token_call(trace: Trace) -> bool:
         return (
             trace.type == TraceType.call
             and trace.action["to"] == SYNTHETIX_PROXY_TOKEN_ADDRESS.lower()
         )
+
+    def _try_token_decode(self, data: str) -> Optional[Tuple]:
+        try:
+            return self.token_contract.decode_function_input(data=data)
+        except ValueError:
+            return None

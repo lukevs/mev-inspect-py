@@ -41,7 +41,11 @@ class Processor:
             if classified_trace is not None:
                 return classified_trace
 
-        return self._build_unknown_classified_trace(trace)
+        return ClassifiedTrace(
+            **trace.dict(),
+            trace_type=trace.type,
+            classification=Classification.unknown,
+        )
 
     def _classify_call(self, trace) -> Optional[ClassifiedTrace]:
         action = CallAction(**trace.action)
@@ -62,10 +66,8 @@ class Processor:
                 )
 
                 return ClassifiedTrace(
-                    transaction_hash=trace.transaction_hash,
-                    block_number=trace.block_number,
+                    **trace.dict(),
                     trace_type=trace.type,
-                    trace_address=trace.trace_address,
                     classification=classification,
                     protocol=spec.protocol,
                     abi_name=spec.abi_name,
@@ -80,39 +82,12 @@ class Processor:
                 )
 
         return ClassifiedTrace(
-            transaction_hash=trace.transaction_hash,
-            block_number=trace.block_number,
+            **trace.dict(),
             trace_type=trace.type,
-            trace_address=trace.trace_address,
             classification=Classification.unknown,
             to_address=action.to,
             from_address=action.from_,
             value=action.value,
             gas=action.gas,
             gas_used=result.gas_used if result is not None else None,
-            protocol=None,
-            abi_name=None,
-            function_name=None,
-            function_signature=None,
-            inputs=None,
-        )
-
-    @staticmethod
-    def _build_unknown_classified_trace(trace):
-        return ClassifiedTrace(
-            transaction_hash=trace.transaction_hash,
-            block_number=trace.block_number,
-            trace_type=trace.type,
-            trace_address=trace.trace_address,
-            classification=Classification.unknown,
-            protocol=None,
-            abi_name=None,
-            function_name=None,
-            function_signature=None,
-            inputs=None,
-            to_address=None,
-            from_address=None,
-            value=None,
-            gas=None,
-            gas_used=None,
         )

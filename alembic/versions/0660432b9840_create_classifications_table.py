@@ -38,6 +38,7 @@ def upgrade():
         sa.Column("gas", sa.Numeric, nullable=True),
         sa.Column("value", sa.Numeric, nullable=True),
         sa.Column("gas_used", sa.Numeric, nullable=True),
+        sa.Column("error", sa.String(256), nullable=True),
         sa.PrimaryKeyConstraint("transaction_hash", "trace_address"),
     )
 

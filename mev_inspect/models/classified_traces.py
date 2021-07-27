@@ -21,3 +21,4 @@ class ClassifiedTraceModel(Base):
     gas = Column(Numeric, nullable=True)
     value = Column(Numeric, nullable=True)
     gas_used = Column(Numeric, nullable=True)
+    error = Column(String, nullable=True)

@@ -34,6 +34,7 @@ class ClassifiedTrace(BaseModel):
     gas: Optional[int]
     value: Optional[int]
     gas_used: Optional[int]
+    error: Optional[str]
 
     class Config:
         json_encoders = {

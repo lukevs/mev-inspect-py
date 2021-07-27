@@ -6,17 +6,17 @@ from mev_inspect.schemas.blocks import CallAction, CallResult, Trace, TraceType
 from mev_inspect.schemas.classified_traces import (
     Classification,
     ClassifiedTrace,
-    DecodeSpec,
+    ClassifierSpec,
 )
 
 
 class TraceClassifier:
-    def __init__(self, decode_specs: List[DecodeSpec]) -> None:
+    def __init__(self, classifier_specs: List[ClassifierSpec]) -> None:
         # TODO - index by contract_addresses for speed
-        self._decode_specs = decode_specs
+        self._classifier_specs = classifier_specs
         self._decoders_by_abi_name: Dict[str, ABIDecoder] = {}
 
-        for spec in self._decode_specs:
+        for spec in self._classifier_specs:
             abi = get_abi(spec.abi_name)
 
             if abi is None:
@@ -51,7 +51,7 @@ class TraceClassifier:
         action = CallAction(**trace.action)
         result = CallResult(**trace.result) if trace.result is not None else None
 
-        for spec in self._decode_specs:
+        for spec in self._classifier_specs:
             if spec.valid_contract_addresses is not None:
                 if action.to not in spec.valid_contract_addresses:
                     continue

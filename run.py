@@ -6,48 +6,11 @@ from web3 import Web3
 from mev_inspect import block
 from mev_inspect.crud.classified_traces import write_classified_traces
 from mev_inspect.db import get_session
+from mev_inspect.classifier_specs import CLASSIFIER_SPECS
 from mev_inspect.trace_classifier import TraceClassifier
-from mev_inspect.schemas.classified_traces import Classification, DecodeSpec, Protocol
-
-
-SUSHISWAP_ROUTER_ADDRESS = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"
-UNISWAP_V2_ROUTER_ADDRESS = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
-
-
-DECODE_SPECS = [
-    DecodeSpec(
-        abi_name="UniswapV2Router",
-        protocol=Protocol.uniswap_v2,
-        valid_contract_addresses=[UNISWAP_V2_ROUTER_ADDRESS],
-    ),
-    DecodeSpec(
-        abi_name="UniswapV2Router",
-        protocol=Protocol.sushiswap,
-        valid_contract_addresses=[SUSHISWAP_ROUTER_ADDRESS],
-    ),
-    DecodeSpec(
-        abi_name="ERC20",
-        classifications={
-            "transferFrom(address,address,uint256)": Classification.transfer,
-            "transfer(address,uint256)": Classification.transfer,
-            "burn(address)": Classification.burn,
-        },
-    ),
-    DecodeSpec(
-        abi_name="UniswapV2Pair",
-        classifications={
-            "swap(uint256,uint256,address,bytes)": Classification.swap,
-        },
-    ),
-]
 
 
 def inspect_block(base_provider, block_number):
-    print("Using decode specs:")
-
-    for spec in DECODE_SPECS:
-        print(spec.json(indent=4, exclude_unset=True))
-
     block_data = block.create_from_block_number(block_number, base_provider)
     print(f"Total traces: {len(block_data.traces)}")
 
@@ -60,7 +23,7 @@ def inspect_block(base_provider, block_number):
     )
     print(f"Total transactions: {total_transactions}")
 
-    trace_clasifier = TraceClassifier(DECODE_SPECS)
+    trace_clasifier = TraceClassifier(CLASSIFIER_SPECS)
     classified_traces = trace_clasifier.classify(block_data.traces)
     print(f"Returned {len(classified_traces)} classified traces")
 

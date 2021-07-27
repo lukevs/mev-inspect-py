@@ -20,3 +20,4 @@ class ClassifiedTraceModel(Base):
     to_address = Column(String, nullable=True)
     gas = Column(Numeric, nullable=True)
     value = Column(Numeric, nullable=True)
+    gas_used = Column(Numeric, nullable=True)

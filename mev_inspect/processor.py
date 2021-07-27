@@ -2,7 +2,7 @@ from typing import Dict, List, Optional
 
 from mev_inspect.abi import get_abi
 from mev_inspect.decode import ABIDecoder
-from mev_inspect.schemas.blocks import Block, CallAction, Trace, TraceType
+from mev_inspect.schemas.blocks import Block, CallAction, CallResult, Trace, TraceType
 from mev_inspect.schemas.classified_traces import (
     Classification,
     ClassifiedTrace,
@@ -45,6 +45,7 @@ class Processor:
 
     def _classify_call(self, trace) -> Optional[ClassifiedTrace]:
         action = CallAction(**trace.action)
+        result = CallResult(**trace.result) if trace.result is not None else None
 
         for spec in self._decode_specs:
             if spec.valid_contract_addresses is not None:
@@ -75,6 +76,7 @@ class Processor:
                     from_address=action.from_,
                     value=action.value,
                     gas=action.gas,
+                    gas_used=result.gas_used if result is not None else None,
                 )
 
         return ClassifiedTrace(
@@ -87,6 +89,7 @@ class Processor:
             from_address=action.from_,
             value=action.value,
             gas=action.gas,
+            gas_used=result.gas_used if result is not None else None,
             protocol=None,
             abi_name=None,
             function_name=None,
@@ -111,4 +114,5 @@ class Processor:
             from_address=None,
             value=None,
             gas=None,
+            gas_used=None,
         )

@@ -7,6 +7,16 @@ from mev_inspect.utils import hex_to_int
 from .utils import CamelModel, Web3Model
 
 
+class CallResult(CamelModel):
+    gas_used: int
+
+    @validator("gas_used", pre=True)
+    def maybe_hex_to_int(v):
+        if isinstance(v, str):
+            return hex_to_int(v)
+        return v
+
+
 class CallAction(Web3Model):
     to: str
     from_: str

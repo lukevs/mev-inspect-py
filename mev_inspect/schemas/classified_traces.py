@@ -29,6 +29,17 @@ class ClassifiedTrace(BaseModel):
     function_name: Optional[str]
     function_signature: Optional[str]
     inputs: Optional[Dict[str, Any]]
+    to_address: Optional[str]
+    from_address: Optional[str]
+    gas: Optional[int]
+    value: Optional[int]
+
+    class Config:
+        json_encoders = {
+            # a little lazy but fine for now
+            # this is used for bytes value inputs
+            bytes: lambda b: b.hex(),
+        }
 
 
 class DecodeSpec(BaseModel):

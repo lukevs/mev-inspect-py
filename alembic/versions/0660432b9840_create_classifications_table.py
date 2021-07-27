@@ -15,51 +15,30 @@ down_revision = None
 branch_labels = None
 depends_on = None
 
-CLASSIFICATION_TYPES = [
-    "unknown",
-]
-
-TRACE_TYPES = [
-    "call",
-    "create",
-    "delegateCall",
-    "reward",
-    "suicide",
-]
-
-PROTOCOL_TYPES = [
-    "uniswap_v2",
-]
-
 
 def upgrade():
     op.create_table(
-        "classifications",
+        "classified_traces",
         sa.Column("classified_at", sa.TIMESTAMP, server_default=sa.func.now()),
         sa.Column("transaction_hash", sa.String(66), nullable=False),
         sa.Column("block_number", sa.Integer, nullable=False),
         sa.Column(
-            "classification_type",
-            sa.Enum(*CLASSIFICATION_TYPES, name="classification_type"),
+            "classification",
+            sa.String(256),
             nullable=False,
         ),
-        sa.Column(
-            "trace_type", sa.Enum(*TRACE_TYPES, name="trace_type"), nullable=False
-        ),
+        sa.Column("trace_type", sa.String(256), nullable=False),
         sa.Column("trace_address", sa.String(256), nullable=False),
-        sa.Column("protocol", sa.Enum(*PROTOCOL_TYPES, name="protocol"), nullable=True),
+        sa.Column("protocol", sa.String(256), nullable=True),
+        sa.Column("abi_name", sa.String(1024), nullable=True),
         sa.Column("function_name", sa.String(2048), nullable=True),
         sa.Column("function_signature", sa.String(2048), nullable=True),
-        sa.Column("input", JSON, nullable=True),
+        sa.Column("inputs", JSON, nullable=True),
         sa.Column("from_address", sa.String(256), nullable=True),
         sa.Column("to_address", sa.String(256), nullable=True),
-        sa.Column("value", sa.Integer, nullable=True),
-        sa.PrimaryKeyConstraint("transaction_hash"),
+        sa.PrimaryKeyConstraint("transaction_hash", "trace_address"),
     )
 
 
 def downgrade():
-    op.drop_table("classifications")
-    sa.Enum(name="trace_type").drop(op.get_bind(), checkfirst=False)
-    sa.Enum(name="classification_type").drop(op.get_bind(), checkfirst=False)
-    sa.Enum(name="protocol").drop(op.get_bind(), checkfirst=False)
+    op.drop_table("classified_traces")

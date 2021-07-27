@@ -2,8 +2,8 @@ from typing import Dict, List, Optional
 
 from mev_inspect.abi import get_abi
 from mev_inspect.decode import ABIDecoder
-from mev_inspect.schemas.blocks import Block, Trace, TraceType
-from mev_inspect.schemas.classifications import (
+from mev_inspect.schemas.blocks import Block, CallAction, Trace, TraceType
+from mev_inspect.schemas.classified_traces import (
     Classification,
     ClassifiedTrace,
     DecodeSpec,
@@ -44,18 +44,15 @@ class Processor:
         return self._build_unknown_classified_trace(trace)
 
     def _classify_call(self, trace) -> Optional[ClassifiedTrace]:
-        to_address = trace.action["to"]
+        action = CallAction(**trace.action)
 
         for spec in self._decode_specs:
             if spec.valid_contract_addresses is not None:
-                if to_address is None:
-                    continue
-
-                if to_address not in spec.valid_contract_addresses:
+                if action.to not in spec.valid_contract_addresses:
                     continue
 
             decoder = self._decoders_by_abi_name[spec.abi_name]
-            call_data = decoder.decode(trace.action["input"])
+            call_data = decoder.decode(action.input)
 
             if call_data is not None:
                 signature = call_data.function_signature
@@ -73,10 +70,29 @@ class Processor:
                     abi_name=spec.abi_name,
                     function_name=call_data.function_name,
                     function_signature=signature,
-                    intputs=call_data.inputs,
+                    inputs=call_data.inputs,
+                    to_address=action.to,
+                    from_address=action.from_,
+                    value=action.value,
+                    gas=action.gas,
                 )
 
-        return None
+        return ClassifiedTrace(
+            transaction_hash=trace.transaction_hash,
+            block_number=trace.block_number,
+            trace_type=trace.type,
+            trace_address=trace.trace_address,
+            classification=Classification.unknown,
+            to_address=action.to,
+            from_address=action.from_,
+            value=action.value,
+            gas=action.gas,
+            protocol=None,
+            abi_name=None,
+            function_name=None,
+            function_signature=None,
+            inputs=None,
+        )
 
     @staticmethod
     def _build_unknown_classified_trace(trace):
@@ -90,5 +106,9 @@ class Processor:
             abi_name=None,
             function_name=None,
             function_signature=None,
-            intputs=None,
+            inputs=None,
+            to_address=None,
+            from_address=None,
+            value=None,
+            gas=None,
         )

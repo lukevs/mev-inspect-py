@@ -4,8 +4,10 @@ import json
 from web3 import Web3
 
 from mev_inspect import block
+from mev_inspect.crud.classified_traces import write_classified_traces
+from mev_inspect.db import get_session
 from mev_inspect.processor import Processor
-from mev_inspect.schemas.classifications import Classification, DecodeSpec, Protocol
+from mev_inspect.schemas.classified_traces import Classification, DecodeSpec, Protocol
 
 
 SUSHISWAP_ROUTER_ADDRESS = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"
@@ -60,10 +62,18 @@ def inspect_block(base_provider, block_number):
 
     processor = Processor(DECODE_SPECS)
     classified_traces = processor.process(block_data)
-
     print(f"Returned {len(classified_traces)} classified traces")
 
-    stats = {}
+    db_session = get_session()
+    write_classified_traces(db_session, classified_traces)
+    db_session.close()
+
+    stats = get_stats(classified_traces)
+    print(json.dumps(stats, indent=4))
+
+
+def get_stats(classified_traces) -> dict:
+    stats: dict = {}
 
     for trace in classified_traces:
         abi_name = trace.abi_name
@@ -72,12 +82,12 @@ def inspect_block(base_provider, block_number):
 
         abi_name_stats = stats.get(abi_name, {})
         class_stats = abi_name_stats.get(classification, {})
-        signature_count = abi_name_stats.get(signature, 0)
+        signature_count = class_stats.get(signature, 0)
         class_stats[signature] = signature_count + 1
         abi_name_stats[classification] = class_stats
         stats[abi_name] = abi_name_stats
 
-    print(json.dumps(dict(stats.items()), indent=4))
+    return stats
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ from web3 import Web3
 from mev_inspect import block
 from mev_inspect.crud.classified_traces import write_classified_traces
 from mev_inspect.db import get_session
-from mev_inspect.processor import Processor
+from mev_inspect.trace_classifier import TraceClassifier
 from mev_inspect.schemas.classified_traces import Classification, DecodeSpec, Protocol
 
 
@@ -60,8 +60,8 @@ def inspect_block(base_provider, block_number):
     )
     print(f"Total transactions: {total_transactions}")
 
-    processor = Processor(DECODE_SPECS)
-    classified_traces = processor.process(block_data)
+    trace_clasifier = TraceClassifier(DECODE_SPECS)
+    classified_traces = trace_clasifier.classify(block_data.traces)
     print(f"Returned {len(classified_traces)} classified traces")
 
     db_session = get_session()

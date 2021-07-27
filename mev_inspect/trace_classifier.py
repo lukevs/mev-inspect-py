@@ -2,7 +2,7 @@ from typing import Dict, List, Optional
 
 from mev_inspect.abi import get_abi
 from mev_inspect.decode import ABIDecoder
-from mev_inspect.schemas.blocks import Block, CallAction, CallResult, Trace, TraceType
+from mev_inspect.schemas.blocks import CallAction, CallResult, Trace, TraceType
 from mev_inspect.schemas.classified_traces import (
     Classification,
     ClassifiedTrace,
@@ -10,7 +10,7 @@ from mev_inspect.schemas.classified_traces import (
 )
 
 
-class Processor:
+class TraceClassifier:
     def __init__(self, decode_specs: List[DecodeSpec]) -> None:
         # TODO - index by contract_addresses for speed
         self._decode_specs = decode_specs
@@ -25,17 +25,17 @@ class Processor:
             decoder = ABIDecoder(abi)
             self._decoders_by_abi_name[spec.abi_name] = decoder
 
-    def process(
+    def classify(
         self,
-        block: Block,
+        traces: List[Trace],
     ) -> List[ClassifiedTrace]:
         return [
-            self._classify(trace)
-            for trace in block.traces
+            self._classify_trace(trace)
+            for trace in traces
             if trace.type != TraceType.reward
         ]
 
-    def _classify(self, trace: Trace) -> ClassifiedTrace:
+    def _classify_trace(self, trace: Trace) -> ClassifiedTrace:
         if trace.type == TraceType.call:
             classified_trace = self._classify_call(trace)
             if classified_trace is not None:

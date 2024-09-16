@@ -1,9 +1,13 @@
 import json
+from typing import Optional
 
 from web3 import Web3
 
 from mev_inspect import utils
 from mev_inspect.config import load_config
+from mev_inspect.schemas import Action, NestedTrace, TraceType
+
+from .base import Inspector
 
 config = load_config()
 
@@ -14,7 +18,7 @@ sushiswap_router_address = config["ADDRESSES"]["SushiswapV2Router"]
 uniswap_pair_abi = json.loads(config["ABI"]["UniswapV2Pair"])
 
 
-class UniswapInspector:
+class UniswapInspector(Inspector):
     def __init__(self, base_provider) -> None:
         self.w3 = Web3(base_provider)
 
@@ -79,14 +83,20 @@ class UniswapInspector:
 
         return result
 
-    def inspect(self, calls):
-        for call in calls:
-            print("\n", call)
-            if (
-                call["action"]["to"] == uniswap_router_address.lower()
-                or call["action"]["to"] == sushiswap_router_address.lower()
-            ) and utils.check_call_for_signature(
-                call, self.uniswap_router_trade_signatures
-            ):
-                # print("WIP, here is where there is a call that matches what we are looking for")
-                1 == 1
+    def inspect(self, nested_trace: NestedTrace) -> Optional[Action]:
+        trace = nested_trace.trace
+
+        if (
+            trace.type == TraceType.call
+            and (
+                trace.action["to"] == uniswap_router_address.lower()
+                or trace.action["to"] == sushiswap_router_address.lower()
+            )
+            and utils.check_call_for_signature(
+                trace, self.uniswap_router_trade_signatures
+            )
+        ):
+            # print("WIP, here is where there is a call that matches what we are looking for")
+            pass
+
+        return None
